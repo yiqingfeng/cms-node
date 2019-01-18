@@ -1,0 +1,60 @@
+#!/usr/bin/env node
+
+const async = require('async');
+const app = require('../app');
+const createServer = require('./server');
+const {
+    parseCli,
+    installService,
+} = require('../tools/index');
+
+const {
+    port,
+} = parseCli();
+
+/**
+ * 设置端口
+ */
+app.set('port', port);
+
+/**
+ * 启动项目
+ */
+async.waterfall([
+    /**
+     * 进行预检查
+     */
+    // 检查安装锁，是否有进行设置数据库相关设置
+    function (callback) {
+        installService.readStatus((err, hasInstall) => {
+            if (err) return callback(err);
+
+            callback(null, hasInstall);
+        });
+    },
+    // 数据库连接
+    function (hasInstall, callback) {
+        if (!hasInstall) {
+            return callback();
+        }
+
+        async.series([
+            // 连接数据库
+            database.connect,
+            // 升级数据库
+            database.update,
+            // 初始化主题
+            // function (callback) {
+            //     themes.init(app, callback);
+            // }
+        ], callback);
+    }
+], err => {
+    if (err) throw err;
+
+    // 启动服务器
+    createServer({
+        app,
+        port,
+    })
+});
