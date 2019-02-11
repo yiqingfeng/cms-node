@@ -16,6 +16,42 @@
     - 请求响应执行阶段
         - 处理请求主要是依据 `router.stack` 中的 `layer` 进行层层循环处理。
 
+```javascript
+const application = {
+    _router: {
+        params: {},
+        stack: [{
+            // layer 维护这一个路径和回调
+            path: '/',
+
+            route: undefined || route,
+
+            /*
+             * 通过 path 匹配
+             */
+            match: Function,
+
+        }],
+
+        /**
+         * 解析 url，设置 request 参数
+         * 依次执行 stack 容器中的 中间件 和 路由
+         */
+        handle: Function,
+        /**
+         * 注册 layer
+         */
+        use: Function,
+        /**
+         *
+         */
+        route: Function,
+    },
+
+    handle: Function,
+
+}
+```
 
 ### express 执行进程
 
@@ -45,3 +81,9 @@ c1(no)->
 ### Layer
 
 - 分类：路由层、中间件层和 具有子路由的中间件层
+
+Layer类别 | route | method
+---|---|---
+中间件Layer | undefined | undefined
+路由Layer | 非undefined | undefined
+route | Layer | undefined | 非undefined
