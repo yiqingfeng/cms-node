@@ -4,6 +4,7 @@
 const _ = require('lodash');
 const setPrototypeOf = require('setprototypeof');
 const parseUrl = require('parseurl');
+const qs = require('qs');
 
 /**
  * 初始化中间件，增强 request response 默认响应头部信息设置

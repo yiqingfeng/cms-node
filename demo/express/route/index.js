@@ -24,7 +24,10 @@ class Router {
     route() {
 
     }
-    handle() {
-
+    // Dispatch a req, res into the router.
+    handle(req, res, done) {
+        console.log('dispatching %s %s', req.method, req.url);
     }
 }
+
+module.exports = Router;

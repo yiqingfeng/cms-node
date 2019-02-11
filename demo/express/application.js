@@ -8,25 +8,10 @@ const setPrototypeOf = require('setprototypeof');
 const Router = require('./route/index');
 const middleware = require('./middleware/index');
 
-const app = new EventEmitter();
-
 class Application extends EventEmitter {
-    constructor() {
-        methods.forEach(method => {
-            this[method] = function (path) {
-                if (method === 'get' && arguments.length === 1) {
-                    // app.get(setting)
-                    return this.set(path);
-                }
+    // constructor() {
 
-                this.lazyrouter();
-
-                var route = this._router.route(path);
-                route[method].apply(route, slice.call(arguments, 1));
-                return this;
-            };
-        });
-    }
+    // }
     init() {
         this.cache = {};
         this.engines = {};
@@ -52,13 +37,10 @@ class Application extends EventEmitter {
     // 懒加载路由 router
     lazyrouter() {
         if (!this._router) {
-            this._router = new Router({
-                caseSensitive: this.enabled('case sensitive routing'),
-                strict: this.enabled('strict routing')
-            });
+            this._router = new Router();
 
-            this._router.use(middleware.query(this.get('query parser fn')));
-            this._router.use(middleware.init(this));
+            // this._router.use(middleware.query(this.get('query parser fn')));
+            // this._router.use(middleware.init(this));
         }
     }
     // Mounts the specified middleware function or functions at the specified path
@@ -107,7 +89,9 @@ class Application extends EventEmitter {
         // final handler
         const done = next || finalhandler(req, res, {
             env: this.get('env'),
-            onerror: logerror.bind(this)
+            onerror(err) {
+                console.error(err.stack || err.toString());
+            },
         });
 
         // no routes
@@ -119,5 +103,20 @@ class Application extends EventEmitter {
         router.handle(req, res, done);
     }
 };
+
+methods.forEach(method => {
+    Application.prototype[method] = function (path) {
+        if (method === 'get' && arguments.length === 1) {
+            // app.get(setting)
+            return this.set(path);
+        }
+
+        this.lazyrouter();
+
+        var route = this._router.route(path);
+        route[method].apply(route, slice.call(arguments, 1));
+        return this;
+    };
+});
 
 module.exports = Application;

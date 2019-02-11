@@ -4,7 +4,7 @@
 const Application = require('./application');
 
 // 每个应用支持相互嵌套 next
-modules.exports = function createAppllication() {
+module.exports = function createAppllication() {
     const app = new Application();
     app.init();
     return app;
