@@ -12,15 +12,19 @@ const http = require('http');
 
 const express = require('./express/index');
 const app = express();
-app.get('/test', (req, res) => {
-    console.log('/test');
+app.get('/test', (req, res, next) => {
     res.write('this is a simple example!');
+    next();
+});
+app.get('/test/a', (req, res) => {
+    res.write('hello');
     res.end();
 });
 // app.use((req, res) => {
 //     res.write('hello world!');
 //     res.end();
 // });
+// console.log(app._router.stack);
 // 注册路由、中间件 设置处理
 const server = http.createServer((req, res) => {
     app.handle(req, res);

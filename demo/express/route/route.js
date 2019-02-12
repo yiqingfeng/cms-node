@@ -9,12 +9,32 @@ class Route {
     constructor(path) {
         this.path = path;
         this.stack = [];
-
-
     }
     // dispatch req, res into this route
     dispatch(req, res, done) {
+        const stack = this.stack;
+        if (!stack.length) {
+            return done();
+        }
 
+        const method = req.method.toLowerCase();
+
+        let idx = 0;
+        next();
+
+        function next(err) {
+            if (err) {
+                return done(err);
+            }
+
+            const layer = stack[idx];
+            idx++;
+            if (!layer) {
+                return done(err);
+            }
+            // if (layer.method && layer.meth)
+            layer.handle_request(req, res, next);
+        }
     }
 }
 
@@ -31,10 +51,8 @@ methods.forEach((method) => {
                 throw new Error(msg);
             }
 
-            console.log('%s %o', method, this.path)
-
             var layer = new Layer('/', handle);
-            // layer.method = method;
+            layer.method = method;
 
             // this.methods[method] = true;
             this.stack.push(layer);

@@ -61,12 +61,8 @@ class Layer {
     }
     handle_request(req, res, next) {
         var fn = this.handle;
-
-        try {
-            fn(req, res, next);
-        } catch (err) {
-            next(err);
-        }
+        console.log(fn.toString());
+        fn(req, res, next);
     }
 }
 

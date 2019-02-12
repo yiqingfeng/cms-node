@@ -1,6 +1,7 @@
 /**
  * @desc 应用
  */
+const http = require('http');
 const EventEmitter = require('events');
 const methods = require('methods');
 const finalhandler = require('finalhandler');
@@ -63,21 +64,21 @@ class Application extends EventEmitter {
                 return router.use(path, fn);
             }
 
-            fn.mountpath = path;
-            fn.parent = this;
+            // fn.mountpath = path;
+            // fn.parent = this;
 
             // restore .app property on req and res
             router.use(path, function mounted_app(req, res, next) {
                 var orig = req.app;
                 fn.handle(req, res, function (err) {
-                    setPrototypeOf(req, orig.request)
-                    setPrototypeOf(res, orig.response)
+                    setPrototypeOf(req, orig.request);
+                    setPrototypeOf(res, orig.response);
                     next(err);
                 });
             });
 
             // mounted an app
-            fn.emit('mount', this);
+            // fn.emit('mount', this);
         }, this);
 
         return this;
@@ -96,11 +97,16 @@ class Application extends EventEmitter {
 
         // no routes
         if (!router) {
-            done();
-            return;
+            return done();
         }
-        // console.log(req.params);
         router.handle(req, res, done);
+    }
+    listen() {
+        const server = http.createServer((req, res) => {
+            app.handle(req, res);
+        });
+        server.listen.apply(server, arguments);
+        return server;
     }
 };
 
@@ -112,7 +118,6 @@ methods.forEach(method => {
         }
 
         this.lazyrouter();
-
         var route = this._router.route(path);
         route[method].apply(route, Array.prototype.slice.call(arguments, 1));
         return this;

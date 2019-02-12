@@ -36,56 +36,46 @@ class Router {
     }
     // Dispatch a req, res into the router.
     handle(req, res, done) {
-        console.log('dispatching %s %s', req.method, req.url);
-        // next();
-
-        let idx = 0;
-
+        console.log('dispatching %s %o', req.method, req.url);
         const path = util.getPathname(req);
         if (!path) {
             return done(layerError);
         }
 
+        const me = this;
         const stack = this.stack;
-        let flag = false;
-        for (let i = 0, len = stack.length; i < len; i++) {
-            const layer = stack[i];
-            if (layer.match(path)) {
-                flag = true;
-                this.process_params(layer, req, res, (err) => {
-                    if (err) {
-                        done(err);
-                    }
-
-                    // 路由处理
-
-                    layer.handle_request(req, res, next);
-                });
-            }
-        }
-        // 没有任何layer能处理该路径
-        if (!flag) {
-            done();
-        }
+        let idx = 0;
+        next();
 
         function next(err) {
-            let layerError = err === 'route' ? null : err;
-
-            // 移除斜线
-
+            if (idx >= stack.length) {
+                // setImmediate(done, null);
+                return done();
+            }
+            let layerError = err;
 
             // 获取下一个匹配处理
             let layer;
             let match;
-            let route;
 
-            while (!match && idx < st)
+            while (!match && idx < stack.length) {
+                layer = stack[idx];
+                match = layer.match(path);
+                idx++;
+                if (match) {
+                    me.process_params(layer, req, res, (err) => {
+                        if (err) {
+                            return next(layerError || err);
+                        }
 
-                if (!match) {
-                    return done(layerError);
+                        // 路由处理
+                        layer.handle_request(req, res, next);
+                    });
                 }
-
-
+            }
+            if (!match) {
+                next(layerError);
+            }
         }
     }
     // Process any parameters for the layer.
