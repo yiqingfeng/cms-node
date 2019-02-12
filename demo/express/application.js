@@ -99,7 +99,7 @@ class Application extends EventEmitter {
             done();
             return;
         }
-
+        // console.log(req.params);
         router.handle(req, res, done);
     }
 };
@@ -114,7 +114,7 @@ methods.forEach(method => {
         this.lazyrouter();
 
         var route = this._router.route(path);
-        route[method].apply(route, slice.call(arguments, 1));
+        route[method].apply(route, Array.prototype.slice.call(arguments, 1));
         return this;
     };
 });

@@ -59,6 +59,15 @@ class Layer {
         this.params = params;
         return true;
     }
+    handle_request(req, res, next) {
+        var fn = this.handle;
+
+        try {
+            fn(req, res, next);
+        } catch (err) {
+            next(err);
+        }
+    }
 }
 
 module.exports = Layer;

@@ -20,20 +20,20 @@ class Route {
 
 methods.forEach((method) => {
     Route.prototype[method] = function () {
-        var handles = flatten(slice.call(arguments));
+        var handles = flatten(Array.prototype.slice.call(arguments));
 
         for (var i = 0; i < handles.length; i++) {
             var handle = handles[i];
 
             if (typeof handle !== 'function') {
-                var type = toString.call(handle);
+                var type = Object.prototype.toString.call(handle);
                 var msg = 'Route.' + method + '() requires a callback function but got a ' + type
                 throw new Error(msg);
             }
 
             console.log('%s %o', method, this.path)
 
-            var layer = Layer('/', handle);
+            var layer = new Layer('/', handle);
             // layer.method = method;
 
             // this.methods[method] = true;

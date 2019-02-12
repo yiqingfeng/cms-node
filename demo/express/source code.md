@@ -60,6 +60,7 @@ const regexp = pathToRegexp('/foo/:bar', keys)
 - `use` 注册中间件，中间件会匹配相应的路径，默认为 `/`
 - `route` 注册路由
 - `handle` 分发 req, res
+- `process_params` layer 参数处理
 
 
 ### Request 和 Response 增强
