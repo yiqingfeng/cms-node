@@ -103,7 +103,7 @@ class Application extends EventEmitter {
     }
     listen() {
         const server = http.createServer((req, res) => {
-            app.handle(req, res);
+            this.handle(req, res);
         });
         server.listen.apply(server, arguments);
         return server;

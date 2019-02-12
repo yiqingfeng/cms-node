@@ -61,7 +61,7 @@ class Layer {
     }
     handle_request(req, res, next) {
         var fn = this.handle;
-        console.log(fn.toString());
+        // console.log(fn.toString());
         fn(req, res, next);
     }
 }

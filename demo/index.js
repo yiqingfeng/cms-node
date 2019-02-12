@@ -25,8 +25,10 @@ app.get('/test/a', (req, res) => {
 //     res.end();
 // });
 // console.log(app._router.stack);
+
 // 注册路由、中间件 设置处理
-const server = http.createServer((req, res) => {
-    app.handle(req, res);
-});
-server.listen(3000);
+app.listen(3000);
+// const server = http.createServer((req, res) => {
+//     app.handle(req, res);
+// });
+// server.listen(3000);

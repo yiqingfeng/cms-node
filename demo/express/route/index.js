@@ -42,30 +42,23 @@ class Router {
             return done(layerError);
         }
 
-        const me = this;
         const stack = this.stack;
         let idx = 0;
-        next();
-
-        function next(err) {
-            if (idx >= stack.length) {
-                // setImmediate(done, null);
-                return done();
+        const next = (err) => {
+            if (idx >= stack.length || err) {
+                return setImmediate(done, err);
+                // return done();
             }
-            let layerError = err;
 
-            // 获取下一个匹配处理
-            let layer;
             let match;
-
             while (!match && idx < stack.length) {
-                layer = stack[idx];
+                const layer = stack[idx];
                 match = layer.match(path);
                 idx++;
                 if (match) {
-                    me.process_params(layer, req, res, (err) => {
+                    this.process_params(layer, req, res, (err) => {
                         if (err) {
-                            return next(layerError || err);
+                            return next(err);
                         }
 
                         // 路由处理
@@ -74,9 +67,11 @@ class Router {
                 }
             }
             if (!match) {
-                next(layerError);
+                next();
             }
         }
+
+        next();
     }
     // Process any parameters for the layer.
     process_params(layer, req, res, done) {
