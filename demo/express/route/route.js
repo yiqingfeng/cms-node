@@ -32,7 +32,10 @@ class Route {
             if (!layer) {
                 return done(err);
             }
-            // if (layer.method && layer.meth)
+            if (!layer.method || layer.method !== method) {
+                return next(err);
+            }
+
             layer.handle_request(req, res, next);
         }
     }

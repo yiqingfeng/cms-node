@@ -25,6 +25,10 @@ class Router {
             fns = argvs.slice(1);
         }
 
+        fns.forEach(fn => {
+            const layer = new Layer(path, fn);
+            this.stack.push(layer);
+        });
     }
     route(path) {
         const route = new Route(path);
@@ -45,9 +49,11 @@ class Router {
         const stack = this.stack;
         let idx = 0;
         const next = (err) => {
-            if (idx >= stack.length || err) {
-                return setImmediate(done, err);
-                // return done();
+            if (err) {
+                return done(err);
+            }
+            if (idx >= stack.length) {
+                return done();
             }
 
             let match;

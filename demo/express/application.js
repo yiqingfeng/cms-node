@@ -5,44 +5,14 @@ const http = require('http');
 const EventEmitter = require('events');
 const methods = require('methods');
 const finalhandler = require('finalhandler');
-const setPrototypeOf = require('setprototypeof');
+const flatten = require('array-flatten');
 const Router = require('./route/index');
 const middleware = require('./middleware/index');
 
 class Application extends EventEmitter {
-    // constructor() {
-
-    // }
-    init() {
-        this.cache = {};
-        this.engines = {};
-        this.settings = {};
-
-        this.defaultConfiguration();
-    }
-    defaultConfiguration() {
-        const env = process.env.NODE_ENV || 'development';
-        // default setttings
-        this.set('env', env);
-    }
-    // Assign `setting` to `val`, or return `setting`'s value
-    set(settings, val) {
-        if (arguments.length === 1) {
-            return this.settings[settings];
-        }
-
-        this.settings[settings] = val;
-
-        return this;
-    }
-    // 懒加载路由 router
-    lazyrouter() {
-        if (!this._router) {
-            this._router = new Router();
-
-            // this._router.use(middleware.query(this.get('query parser fn')));
-            // this._router.use(middleware.init(this));
-        }
+    constructor() {
+        super();
+        this._router = new Router();
     }
     // Mounts the specified middleware function or functions at the specified path
     use(fn) {
@@ -53,32 +23,12 @@ class Application extends EventEmitter {
             path = argvs[0] || path;
             fns = argvs.slice(1);
         }
+        fns = flatten(fns);
 
-        // setup router
-        this.lazyrouter();
         const router = this._router;
 
         fns.forEach(fn => {
-            // non-express app
-            if (!fn || !fn.handle || !fn.set) {
-                return router.use(path, fn);
-            }
-
-            // fn.mountpath = path;
-            // fn.parent = this;
-
-            // restore .app property on req and res
-            router.use(path, function mounted_app(req, res, next) {
-                var orig = req.app;
-                fn.handle(req, res, function (err) {
-                    setPrototypeOf(req, orig.request);
-                    setPrototypeOf(res, orig.response);
-                    next(err);
-                });
-            });
-
-            // mounted an app
-            // fn.emit('mount', this);
+            router.use(path, fn);
         }, this);
 
         return this;
@@ -89,7 +39,7 @@ class Application extends EventEmitter {
 
         // final handler
         const done = next || finalhandler(req, res, {
-            env: this.get('env'),
+            env: 'development',
             onerror(err) {
                 console.error(err.stack || err.toString());
             },
@@ -110,14 +60,9 @@ class Application extends EventEmitter {
     }
 };
 
+// 继承 node 支持的 http 解析器 的相关解析方法， eg. get post head delete
 methods.forEach(method => {
     Application.prototype[method] = function (path) {
-        if (method === 'get' && arguments.length === 1) {
-            // app.get(setting)
-            return this.set(path);
-        }
-
-        this.lazyrouter();
         var route = this._router.route(path);
         route[method].apply(route, Array.prototype.slice.call(arguments, 1));
         return this;

@@ -39,7 +39,7 @@ class Layer {
     match(path) {
         // fast path non-ending match for / (any path matches)
         if (this.fast_slash) {
-            return false;
+            return true;
         }
 
         const match = this.regexp.exec(path);
@@ -61,7 +61,7 @@ class Layer {
     }
     handle_request(req, res, next) {
         var fn = this.handle;
-        // console.log(fn.toString());
+        console.log('handle %o', fn.name);
         fn(req, res, next);
     }
 }

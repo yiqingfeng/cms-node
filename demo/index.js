@@ -12,23 +12,31 @@ const http = require('http');
 
 const express = require('./express/index');
 const app = express();
-app.get('/test', (req, res, next) => {
-    res.write('this is a simple example!');
-    next();
-});
-app.get('/test/a', (req, res) => {
-    res.write('hello');
-    res.end();
-});
-// app.use((req, res) => {
-//     res.write('hello world!');
-//     res.end();
-// });
-// console.log(app._router.stack);
 
 // 注册路由、中间件 设置处理
+app.use(function mid(req, res, next) {
+    res.write('this is a middleware!\n');
+    next();
+});
+
+app.get('/test', function test(req, res) {
+    res.write('this is a simple example!\n');
+    res.end();
+});
+app.get('/demo', function demo(req, res, next) {
+    res.write('hello demo!\n');
+    next();
+});
+app.get('/demo/a', function demoA(req, res) {
+    res.write('hello a!\n');
+    res.end();
+});
+
+app.use(function end(req, res) {
+    res.write('hello world!');
+    res.end();
+});
+// console.log(app._router.stack);
+
+// 监听 http 服务
 app.listen(3000);
-// const server = http.createServer((req, res) => {
-//     app.handle(req, res);
-// });
-// server.listen(3000);
